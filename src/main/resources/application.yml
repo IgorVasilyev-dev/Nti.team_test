@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://localhost:5432/nti_demo
+#    username: postgres
+#    password: postgres
+    hikari:
+      minimum-idle: 5
+      auto-commit: false
+      maximum-pool-size: 20
+
