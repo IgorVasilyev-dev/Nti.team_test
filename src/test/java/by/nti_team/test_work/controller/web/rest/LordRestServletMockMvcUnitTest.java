@@ -36,12 +36,13 @@ class LordRestServletMockMvcUnitTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
+
+    private final Lord lord1 = new Lord(1L, "Jane", 12, null);
+    private final Lord lord2 = new Lord(2L, "Joe", 46, null);
+    private final List<Lord> lordList = Arrays.asList(lord1, lord2);
+
     @Test
     public void giveListLords_whenGet_thenStatus200andReturnResults() throws Exception {
-        Lord lord1 = new Lord(1L, "Jane", 12, null);
-        Lord lord2 = new Lord(2L, "Joe", 46, null);
-
-        List<Lord> lordList = Arrays.asList(lord1, lord2);
 
         Mockito.when(this.lordView.getAll()).thenReturn(lordList);
 
@@ -56,11 +57,6 @@ class LordRestServletMockMvcUnitTest {
     @Test
     public void giveEmptyListLords_whenGet_thenStatus200andReturnResults() throws Exception {
 
-        Lord lord1 = new Lord(1L, "Jane", 12, null);
-        Lord lord2 = new Lord(2L, "Joe", 46, null);
-
-        List<Lord> lordList = Arrays.asList(lord1, lord2);
-
         Mockito.when(this.lordView.getEmptyLords()).thenReturn(lordList);
 
         mockMvc.perform(
@@ -72,11 +68,6 @@ class LordRestServletMockMvcUnitTest {
 
     @Test
     public void giveTopListLords_whenGet_thenStatus200andReturnResults() throws Exception {
-
-        Lord lord1 = new Lord(1L, "Jane", 12, null);
-        Lord lord2 = new Lord(2L, "Joe", 46, null);
-
-        List<Lord> lordList = Arrays.asList(lord1, lord2);
 
         Mockito.when(this.lordView.getTop()).thenReturn(lordList);
 
@@ -90,49 +81,44 @@ class LordRestServletMockMvcUnitTest {
     @Test
     public void giveLordById_whenGet_thenStatus200andReturns() throws Exception {
 
-        Lord lord = new Lord(1L, "Igor", 123, null);
-
-        Mockito.when(this.lordView.getById((Mockito.anyLong()))).thenReturn(lord);
+        Mockito.when(this.lordView.getById((Mockito.anyLong()))).thenReturn(lord2);
 
         mockMvc.perform(
                 get("/lords/1")
-                        .content(objectMapper.writeValueAsString(lord))
+                        .content(objectMapper.writeValueAsString(lord2))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(handler().methodName("getLordByIdJson"))
-                .andExpect(content().json(objectMapper.writeValueAsString(lord)));
+                .andExpect(content().json(objectMapper.writeValueAsString(lord2)));
     }
 
     @Test
     public void givenLord_whenPost_thenStatus201andLordReturned() throws Exception {
 
-        Lord lord = new Lord(1L, "Igor", 38, null);
-        Mockito.when(this.lordView.addLord(Mockito.any())).thenReturn(lord);
+        Mockito.when(this.lordView.addLord(Mockito.any())).thenReturn(lord1);
 
         mockMvc.perform(
                 post("/lords")
-                        .content(objectMapper.writeValueAsString(lord))
+                        .content(objectMapper.writeValueAsString(lord1))
                         .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isCreated())
                 .andExpect(handler().methodName("addLord"))
-                .andExpect(content().json(objectMapper.writeValueAsString(lord)));
+                .andExpect(content().json(objectMapper.writeValueAsString(lord1)));
     }
 
     @Test
     public void giveLord_whenPut_thenStatus200andReturns() throws Exception {
 
-        Lord lord = new Lord(1L, "Igor", 123, null);
-
-        Mockito.when(this.lordView.updateLord(Mockito.any())).thenReturn(lord);
+        Mockito.when(this.lordView.updateLord(Mockito.any())).thenReturn(lord2);
 
         mockMvc.perform(
                 put("/lords")
-                        .content(objectMapper.writeValueAsString(lord))
+                        .content(objectMapper.writeValueAsString(lord2))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(handler().methodName("updateLord"))
-                .andExpect(content().json(objectMapper.writeValueAsString(lord)));
+                .andExpect(content().json(objectMapper.writeValueAsString(lord2)));
     }
 
 }
