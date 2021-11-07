@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -26,7 +27,8 @@ class LordRestServletMockMvcUnitTest {
 
     private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    ObjectMapper objectMapper;
 
     @MockBean
     private ILordView lordView;
@@ -35,7 +37,6 @@ class LordRestServletMockMvcUnitTest {
     public void setUp(WebApplicationContext context) {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
-
 
     private final Lord lord1 = new Lord(1L, "Jane", 12, null);
     private final Lord lord2 = new Lord(2L, "Joe", 46, null);
