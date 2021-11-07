@@ -89,10 +89,11 @@ public class LordRestServletMockMvcIntegrationTest {
     }
 
     @Test
-    public void givenId_whenGetExistingLord_thenStatus200andPersonReturned() throws Exception {
+    public void givenId_whenGetExistingLord_thenStatus200andPersonReturned_and_thenStatus400andErrorReturns() throws Exception {
 
         Lord lord = saveEntity(createTestLord("Michail", 57));
         long id = lord.getId();
+        long anyId = 1234;
 
         mockMvc.perform(
                 get("/lords/{id}", id))
@@ -101,10 +102,18 @@ public class LordRestServletMockMvcIntegrationTest {
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value("Michail"))
                 .andExpect(jsonPath("$.age").value(57));
+
+        mockMvc.perform(
+                get("/lords/{id}", anyId))
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().methodName("getLordByIdJson"))
+                .andExpect(jsonPath("$.status").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Not Found Entity"))
+                .andExpect(jsonPath("$.debugMessage").value("entity with 'id = " + anyId + "' is not found"));
     }
 
     @Test
-    public void givenLord_whenAdd_thenStatus201andLordReturned() throws Exception {
+    public void givenLord_whenAdd_thenStatus201andLordReturned_and_thenStatus400andErrorReturns() throws Exception {
 
         Set<Planet> planets = new HashSet<>();
         planets.add(createTestPlanet("Mars"));
@@ -124,11 +133,22 @@ public class LordRestServletMockMvcIntegrationTest {
                 .andExpect(jsonPath("$.planets").isArray())
                 .andExpect(jsonPath("$.planets[0].id").isNumber())
                 .andExpect(jsonPath("$.planets[0].name").value("Mars"));
+
+        mockMvc.perform(
+                post("/lords")
+                        .content(objectMapper.writeValueAsString(lord))
+                        .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().methodName("addLord"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Entity Already Exists"))
+                .andExpect(jsonPath("$.debugMessage").value("entity already exists"));
     }
 
 
     @Test
-    public void giveLord_whenPut_thenStatus200andReturns() throws Exception {
+    public void giveLord_whenPut_thenStatus200andReturns_and_thenStatus400andErrorReturns() throws Exception {
 
         Set<Planet> planets = new HashSet<>();
         planets.add(createTestPlanet("Moon"));
@@ -137,6 +157,7 @@ public class LordRestServletMockMvcIntegrationTest {
         lord.setAge(666);
         lord.setName("NEW");
         lord.setPlanets(planets);
+        Lord notExist = new Lord(1334L,"NotExist", 2223, null);
 
         mockMvc.perform(
                 put("/lords")
@@ -150,6 +171,16 @@ public class LordRestServletMockMvcIntegrationTest {
                 .andExpect(jsonPath("$.planets").isArray())
                 .andExpect(jsonPath("$.planets[0].id").isNumber())
                 .andExpect(jsonPath("$.planets[0].name").value("Moon"));
+
+        mockMvc.perform(
+                put("/lords")
+                        .content(objectMapper.writeValueAsString(notExist))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().methodName("updateLord"))
+                .andExpect(jsonPath("$.status").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Not Found Entity"))
+                .andExpect(jsonPath("$.debugMessage").value("entity with 'id = " + notExist.getId() + "' is not found"));
     }
 
     public  Stream<Lord> valueProviderLords() {
