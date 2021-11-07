@@ -94,7 +94,7 @@ class PlanetRestServletMockMvcIntegrationTest {
 
         mockMvc.perform(
                 post("/planets")
-                        .content(objectMapper.writeValueAsString(planet))
+                        .content(objectMapper.writeValueAsString(planetList.get(4)))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(handler().methodName("createPlanet"))
