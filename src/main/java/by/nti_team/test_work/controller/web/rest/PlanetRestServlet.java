@@ -2,6 +2,7 @@ package by.nti_team.test_work.controller.web.rest;
 
 import by.nti_team.test_work.model.Planet;
 import by.nti_team.test_work.view.api.IPlanetView;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class PlanetRestServlet {
 
     @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
     protected ResponseEntity<?> createPlanet(@RequestBody Planet planet) {
-        return ResponseEntity.ok().body(this.planetView.addPlanet(planet));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.planetView.addPlanet(planet));
     }
 
 }

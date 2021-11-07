@@ -43,7 +43,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = EntityExistsException.class)
-    protected ResponseEntity<?> handlerNotFoundEntityException(EntityExistsException exception) {
+    protected ResponseEntity<?> handlerEntityExistsException(EntityExistsException exception) {
         return ResponseEntity.badRequest().body(new ApiError(HttpStatus.BAD_REQUEST,
                 "Entity Already Exists", exception.getMessage()));
     }
