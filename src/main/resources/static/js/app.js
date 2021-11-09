@@ -1,20 +1,24 @@
+function fetchTimeout (url,options,timeout=3000) {
+    return new Promise((resolve, reject) => {
+        fetch(url, options)
+            .then(resolve, reject)
+        setTimeout(reject, timeout);
+    })
+}
+
 async function sendRequest(method, url,body=null) {
     const headers = {
-        'Content-type': 'application/json'
+        'Content-Type': 'application/json;charset=utf-8'
     }
     if(body !== null) {
         body = JSON.stringify(body)
     }
-    return await fetch(url, {
+    return await fetchTimeout(url, {
         method: method,
         body: body,
-        headers: headers
-    }).then(response => {
+        headers: headers}, 3000).then(response => {
         if(response.ok) {
-            if (method === 'GET') {
-                return response.json()
-            }
-            return response.json
+            return response.json()
         } else {
             return response.json().then(error => {
                 const e = new Error('Что-то пошло не так')
@@ -34,10 +38,9 @@ function addPlanet(id, selector, method) {
         inputBody[input.id] = input.value
     })
 
-    sendRequest(method, 'http://localhost:8080/planets', inputBody).then(response => {
-        alert('Сохранено')
-        createAddPlanetsForm('addPlanets')
-    })
+    sendRequest(method, 'http://localhost:8080/planets', inputBody)
+        .then(() => alert('Сохранено'))
+        .then(() => createAddPlanetsForm('addPlanets'))
 }
 
 function delPlanet(planetsList,id, selector, method) {
@@ -52,10 +55,9 @@ function delPlanet(planetsList,id, selector, method) {
         }
     })
 
-    sendRequest(method, 'http://localhost:8080/planets', inputBody).then(response => {
-        alert('Успешно удалено')
-        createdeletePlanetsTab(planetsList,'addPlanets')
-    })
+    sendRequest(method, 'http://localhost:8080/planets', inputBody)
+        .then(() => alert('Успешно удалено'))
+        .then(() => createDeletePlanetsTab(planetsList,'addPlanets'))
 }
 
 
@@ -66,17 +68,15 @@ function addLord(id, selector, method) {
         inputBody[input.id] = input.value
     })
 
-    sendRequest(method, 'http://localhost:8080/lords', inputBody).then(response => {
-        alert('Сохранено')
-        createAddLordsForm('addLords')
-    })
+    sendRequest(method, 'http://localhost:8080/lords', inputBody)
+        .then(() => alert('Сохранено'))
+        .then(() => createAddLordsForm('addLords'))
 
 }
 
 function updateLord(lordList,planetList,id, selectors, method) {
     let inputBody = {};
     let planets = [];
-    let data=[]
 
     let elements = document.getElementById(id);
     selectors.forEach( selectors => {
@@ -97,21 +97,14 @@ function updateLord(lordList,planetList,id, selectors, method) {
     })
 
     inputBody.planets = planets
-    sendRequest(method, 'http://localhost:8080/lords', inputBody).then(response => {
-        alert('Планета ' + planets[0].name + ' успешно добавлена под управление ' + inputBody.name)
-        createUpdateLordsForm(lordList, planetList,'updateLords')
-    })
-
+    sendRequest(method, 'http://localhost:8080/lords', inputBody)
+        .then(() =>  alert('Планета ' + planets[0].name + ' успешно добавлена под управление ' + inputBody.name))
+        .then(() => createUpdateLordsForm(lordList, planetList,'updateLords'))
 }
 
 
 function getElement(id) {
     return document.getElementById(id);
-}
-
-function createHtmlElements_lords_All(idElement) {
-    let element = getElement(idElement);
-    element.innerHTML = 'Lords-All';
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -129,11 +122,6 @@ window.addEventListener("DOMContentLoaded", () => {
     getElement('planets').addEventListener('click', handlerClick)
 
 });
-
-function createTable(idElement, data) {
-    let element = getElement(idElement)
-    element.innerHTML ="Получили всех лордов"
-}
 
 function createHtmlElementsPagePlanets(idElement) {
     let element = getElement(idElement);
@@ -202,7 +190,7 @@ function addEventClick(idSelector) {
                 break
             case 'del-planetstab':
                 sendRequest('GET','http://localhost:8080/planets').then(response => {
-                    createdeletePlanetsTab(response, 'deletePlanets')
+                    createDeletePlanetsTab(response, 'deletePlanets')
                 })
                 break
             case 'all-lordsTab':
@@ -273,18 +261,18 @@ function createAddPlanetsForm(idElement) {
         '</div>\n' +
         '</div>' +
         '  <div class="col-12">\n' +
-        '    <button type="submit" id="addPlanet_btn" class="btn btn-primary">сохранить</button>\n' +
+        '    <button type="button" id="addPlanet_btn" class="btn btn-primary">сохранить</button>\n' +
         '  </div>\n' +
         '</form>';
 
     let button = document.querySelector('#addPlanet_btn')
-    const handlerClick = (event) => {
+    const handlerClick = () => {
         addPlanet("formAddPlanet","input","POST")
     }
     button.addEventListener('click', handlerClick)
 }
 
-function  createdeletePlanetsTab(planetList, idElement) {
+function  createDeletePlanetsTab(planetList, idElement) {
 
     let element = getElement(idElement)
     element.innerHTML = '<form id="formDeletePlanet" class="row g-3"  >\n' +
@@ -295,14 +283,14 @@ function  createdeletePlanetsTab(planetList, idElement) {
         '    </select>\n' +
         '</div>' +
         '  <div class="col-12">\n' +
-        '    <button type="submit" id="deletePlanet_btn" class="btn btn-primary">удалить</button>\n' +
+        '    <button type="button" id="deletePlanet_btn" class="btn btn-primary">удалить</button>\n' +
         '  </div>\n' +
         '</form>';
 
     getOptions(planetList, 'planetsList')
 
     let button = document.querySelector('#deletePlanet_btn')
-    const handlerClick = (event) => {
+    const handlerClick = () => {
         delPlanet(planetList,"formDeletePlanet","select","DELETE")
     }
     button.addEventListener('click', handlerClick)
@@ -353,12 +341,12 @@ function createAddLordsForm(idElement) {
         '</div>\n' +
         '</div>' +
         '  <div class="col-12">\n' +
-        '    <button type="submit" id="addLord_btn" class="btn btn-primary">сохранить</button>\n' +
+        '    <button type="button" id="addLord_btn" class="btn btn-primary">сохранить</button>\n' +
         '  </div>\n' +
         '</form>';
 
     let button = document.querySelector('#addLord_btn')
-    const handlerClick = (event) => {
+    const handlerClick = () => {
         addLord("formAddLord","input","POST")
     }
     button.addEventListener('click', handlerClick)
@@ -381,7 +369,7 @@ function createUpdateLordsForm(lordList,planetList,idElement) {
         '    </select>\n' +
         '</div>' +
         '  <div class="col-12">\n' +
-        '    <button type="submit" id="updateLord_btn" class="btn btn-primary">сохранить</button>\n' +
+        '    <button type="button" id="updateLord_btn" class="btn btn-primary">сохранить</button>\n' +
         '  </div>\n' +
         '</form>';
 
@@ -389,7 +377,7 @@ function createUpdateLordsForm(lordList,planetList,idElement) {
     getOptions(planetList, 'planetsList')
 
     let button = document.querySelector('#updateLord_btn')
-    const handlerClick = (event) => {
+    const handlerClick = () => {
         updateLord(lordList,planetList,"formUpdateLord",["input","select"],"PUT")
     }
     button.addEventListener('click', handlerClick)
@@ -400,4 +388,5 @@ function getOptions(data, element) {
         let options = document.createElement("option")
         options.innerHTML = '<option>' + e.name + '</option>'
         document.getElementById(element).appendChild(options)
-    })}
+    })
+}

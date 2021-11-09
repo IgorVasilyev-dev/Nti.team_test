@@ -28,7 +28,7 @@ public class Planet implements Serializable {
     private String name;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lord_id", referencedColumnName = "id")
     private Lord lord;
 
